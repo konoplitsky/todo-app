@@ -1,4 +1,15 @@
 <script setup lang="ts">
+import {
+  NConfigProvider,
+  NGlobalStyle,
+  NMessageProvider,
+  NSpace,
+  NH1,
+  NText,
+  NSpin,
+  NEmpty,
+  darkTheme
+} from 'naive-ui';
 import Panel from '@/components/Panel.vue';
 import List from '@/components/List.vue';
 import type { Todo } from '@/types.ts';
@@ -47,10 +58,46 @@ const toggleTodo = async (todo: Todo) => {
 </script>
 
 <template>
-  <h1>Список дел</h1>
-  <Panel @addTodo="addTodo" />
-  <h2 v-if="!todos.length">{{ loading ? 'Loafing...' : 'no tasks!!!' }}</h2>
-  <List v-else @deleteTodo="deleteTodo" @toggleTodo="toggleTodo" :todos="todos" />
+  <NConfigProvider :theme="darkTheme">
+    <NGlobalStyle />
+    <NMessageProvider>
+      <div class="app">
+        <NSpace vertical size="large">
+          <NH1 style="margin: 0; text-align: center;">
+            <NText type="primary">📋 Список дел</NText>
+          </NH1>
+
+          <Panel @add-todo="addTodo" />
+
+          <div v-if="loading" class="loader">
+            <NSpin size="medium" />
+            <NText depth="3">Загрузка задач...</NText>
+          </div>
+          <NEmpty v-else-if="!todos.length" description="Нет задач. Добавьте первую!" />
+          <List v-else @delete-todo="deleteTodo" @toggle-todo="toggleTodo" :todos="todos" />
+        </NSpace>
+      </div>
+    </NMessageProvider>
+  </NConfigProvider>
 </template>
 
-<style scoped></style>
+<style>
+body {
+  margin: 0;
+  background: #18181c;
+}
+
+.app {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 40px;
+}
+</style>

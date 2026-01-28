@@ -1,5 +1,4 @@
 import { createApp } from 'vue';
-// @ts-ignore
 import App from './App.vue';
 
 async function enableMocking() {
@@ -14,5 +13,4 @@ async function enableMocking() {
 
 await enableMocking();
 
-const app = createApp(App);
-app.mount('#app');
+createApp(App).mount('#app');
