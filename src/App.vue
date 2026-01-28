@@ -1,48 +1,47 @@
-<script lang="ts">
+<script setup lang="ts">
 import Panel from '@/components/Panel.vue';
 import List from '@/components/List.vue';
-import type { Todo } from './types.ts';
+import type { Todo } from '@/types.ts';
+import { onMounted, ref } from 'vue';
 
-export default {
-  components: {
-    List,
-    Panel
-  },
-  data() {
-    return {
-      loading: true,
-      todos: [] as Todo[]
-    };
-  },
-  async beforeMount() {
-    this.todos = await fetch('/api/todos').then((res) => res.json());
-    this.loading = false;
-  },
-  methods: {
-    async addTodo(todo: Omit<Todo, 'id' | 'checked'>) {
-      await fetch('/api/todo', { method: 'POST', body: JSON.stringify(todo) }).then((res) =>
-        res.json().then((todo) => this.todos.push(todo))
-      );
-    },
-    async deleteTodo(id: Todo['id']) {
-      await fetch(`/api/todo/${id}`, { method: 'DELETE' }).then(
-        () => (this.todos = this.todos.filter((item) => item.id !== id))
-      );
-    },
-    async toggleTodo(todo: Todo) {
-      const res = await fetch('/api/todo', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: todo.id, checked: !todo.checked })
-      });
+const loading = ref<boolean>(true);
+const todos = ref<Todo[]>([]);
 
-      const updated: Todo = await res.json();
+onMounted(async () => {
+  const res = await fetch('/api/todos');
+  todos.value = await res.json();
+  loading.value = false;
+});
 
-      const index = this.todos.findIndex((item) => item.id === updated.id);
-      if (index !== -1) {
-        this.todos[index] = updated;
-      }
-    }
+const addTodo = async (todo: Omit<Todo, 'id' | 'checked'>) => {
+  const res = await fetch('/api/todo', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(todo)
+  });
+
+  const newTodo: Todo = await res.json();
+  todos.value.push(newTodo);
+};
+
+const deleteTodo = async (id: Todo['id']) => {
+  await fetch(`/api/todo/${id}`, { method: 'DELETE' });
+
+  todos.value = todos.value.filter((item) => item.id !== id);
+};
+
+const toggleTodo = async (todo: Todo) => {
+  const res = await fetch('/api/todo', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id: todo.id, checked: !todo.checked })
+  });
+
+  const updated: Todo = await res.json();
+
+  const index = todos.value.findIndex((item) => item.id === updated.id);
+  if (index !== -1) {
+    todos.value[index] = updated;
   }
 };
 </script>

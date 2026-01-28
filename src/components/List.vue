@@ -1,20 +1,16 @@
-<script lang="ts">
-import type { PropType } from 'vue';
-import type { Todo } from '../types.ts';
+<script setup lang="ts">
+import type { Todo } from '@/types.ts';
 
-export default {
-  emits: ['deleteTodo', 'toggleTodo'],
-  props: {
-    todos: { type: Array as PropType<Todo[]>, required: true }
-  },
-  methods: {
-    deleteTodo(id: Todo['id']) {
-      this.$emit('deleteTodo', id);
-    },
-    toggleTodo(todo: Todo) {
-      this.$emit('toggleTodo', todo);
-    }
-  }
+defineProps<{ todos: Todo[] }>();
+
+const emit = defineEmits<{ deleteTodo: [number]; toggleTodo: [Todo] }>();
+
+const deleteTodo = (id: Todo['id']) => {
+  emit('deleteTodo', id);
+};
+
+const toggleTodo = (todo: Todo) => {
+  emit('toggleTodo', todo);
 };
 </script>
 

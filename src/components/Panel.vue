@@ -1,24 +1,21 @@
-<script lang="ts">
-export default {
-  emits: ['addTodo'],
-  data() {
-    return {
-      todo: {
-        title: '',
-        description: ''
-      }
-    };
-  },
-  methods: {
-    onSubmit() {
-      this.$emit('addTodo', this.todo);
-      this.formReset();
-    },
-    formReset() {
-      this.todo.title = '';
-      this.todo.description = '';
-    }
-  }
+<script setup lang="ts">
+import { ref } from 'vue';
+import type { Todo } from '@/types';
+
+const emit = defineEmits<{ addTodo: [Omit<Todo, 'id' | 'checked'>] }>();
+
+const todo = ref({
+  title: '',
+  description: ''
+});
+
+const formReset = () => {
+  ((todo.value.title = ''), (todo.value.description = ''));
+};
+
+const onSubmit = () => {
+  emit('addTodo', todo.value);
+  formReset();
 };
 </script>
 
